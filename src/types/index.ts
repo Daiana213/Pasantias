@@ -3,7 +3,7 @@ import type { Timestamp } from 'firebase/firestore';
 
 export interface BaseUser {
   id?: string; // Firestore document ID
-  email: string;
+  email: string; // For companies, this is primary. For students, can be placeholder or derived.
   passwordHash: string;
   isApproved: boolean;
   isEmailVerified: boolean;
@@ -14,14 +14,15 @@ export interface BaseUser {
 export interface Student extends BaseUser {
   userType: 'student';
   name: string;
-  // Add student-specific fields here
+  sysacadUser: string; // Primary identifier for students for login/registration
+  // email field from BaseUser might be a placeholder or an actual contact email if gathered elsewhere.
 }
 
 export interface Company extends BaseUser {
   userType: 'company';
   companyName: string;
   companyDescription: string;
-  // Add company-specific fields here
+  // email field from BaseUser is the primary identifier for companies.
 }
 
 export type User = Student | Company;

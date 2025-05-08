@@ -3,7 +3,8 @@
 
 interface UserDetails {
   name: string;
-  email: string;
+  identifier: string; // Can be email or SYSACAD username
+  identifierType: 'email' | 'sysacadUser';
   userType: 'student' | 'company';
   description?: string; // For company
 }
@@ -12,11 +13,6 @@ const ADMIN_EMAIL = 'daianapalacios213@gmail.com';
 
 /**
  * Simulates sending an email to the administrator for account approval.
- * In a real application, this would use an email service (e.g., SendGrid, Nodemailer).
- * 
- * This function represents the first step: informing the admin.
- * The subsequent step (admin approves -> user gets validation email) is not implemented here
- * and would require backend logic to track approval status and trigger further emails.
  */
 export async function sendAdminApprovalRequestEmail(userDetails: UserDetails): Promise<{ success: boolean; message: string }> {
   console.log('Simulating sending approval request email...');
@@ -29,7 +25,7 @@ export async function sendAdminApprovalRequestEmail(userDetails: UserDetails): P
 
     Tipo de Usuario: ${userDetails.userType}
     Nombre: ${userDetails.name}
-    Email: ${userDetails.email}
+    ${userDetails.identifierType === 'email' ? 'Email' : 'Usuario SYSACAD'}: ${userDetails.identifier}
   `;
 
   if (userDetails.userType === 'company' && userDetails.description) {
@@ -41,14 +37,11 @@ export async function sendAdminApprovalRequestEmail(userDetails: UserDetails): P
   emailBody += `
 
     Por favor, revisa esta solicitud en el panel de administración.
-    (En una aplicación real, aquí habría un enlace para aprobar/rechazar directamente)
   `;
 
   console.log('Email Body:', emailBody);
 
-  // Simulate network delay and success
   await new Promise(resolve => setTimeout(resolve, 500));
 
-  // This simulation always succeeds. Error handling for email sending would be needed in a real app.
   return { success: true, message: 'Approval request email simulated successfully.' };
 }

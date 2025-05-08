@@ -1,3 +1,4 @@
+
 // @ts-nocheck
 "use client";
 
@@ -15,25 +16,30 @@ import {
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { useToast } from "@/hooks/use-toast";
-import { Mail, Lock, LogIn as LogInIcon } from "lucide-react";
+import { Mail, Lock, LogIn as LogInIcon, User } from "lucide-react"; // Added User icon
 import Link from "next/link";
-// import { loginUser } from "@/lib/actions/authActions"; // Assume this action exists or will be created
-
-const formSchema = z.object({
-  email: z.string().email({ message: "Por favor ingresa un correo válido." }),
-  password: z.string().min(6, { message: "La contraseña debe tener al menos 6 caracteres." }),
-});
 
 type LoginFormProps = {
   userType: "student" | "company";
 };
 
+// Define schema dynamically based on userType
+const getFormSchema = (userType: "student" | "company") => z.object({
+  identifier: userType === 'student'
+    ? z.string().min(2, { message: "Usuario SYSACAD debe tener al menos 2 caracteres." })
+    : z.string().email({ message: "Por favor ingresa un correo válido." }),
+  password: z.string().min(6, { message: "La contraseña debe tener al menos 6 caracteres." }),
+});
+
+
 export default function LoginForm({ userType }: LoginFormProps) {
   const { toast } = useToast();
+  const formSchema = getFormSchema(userType);
+
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: {
-      email: "",
+      identifier: "",
       password: "",
     },
   });
@@ -54,14 +60,11 @@ export default function LoginForm({ userType }: LoginFormProps) {
         variant: "default",
       });
       
-      // Simulate setting auth state
       if (typeof window !== 'undefined') {
         localStorage.setItem('isLoggedIn', 'true');
         localStorage.setItem('userType', userType);
       }
 
-      // router.push(userType === 'student' ? '/student/dashboard' : '/company/dashboard');
-      // For now, just log, actual redirection would happen after implementing auth state
       if (userType === 'student') {
         window.location.href = '/student/dashboard';
       } else {
@@ -77,20 +80,24 @@ export default function LoginForm({ userType }: LoginFormProps) {
     }
   }
 
+  const identifierLabel = userType === 'student' ? "Usuario SYSACAD" : "Correo Electrónico";
+  const identifierPlaceholder = userType === 'student' ? "ej: nombre.apellido" : "tu@correo.com";
+  const IdentifierIcon = userType === 'student' ? User : Mail;
+
   return (
     <Form {...form}>
       <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
         <FormField
           control={form.control}
-          name="email"
+          name="identifier" // Changed from email to identifier
           render={({ field }) => (
             <FormItem>
               <FormLabel className="flex items-center">
-                <Mail className="mr-2 h-4 w-4 text-muted-foreground" />
-                Correo Electrónico
+                <IdentifierIcon className="mr-2 h-4 w-4 text-muted-foreground" />
+                {identifierLabel}
               </FormLabel>
               <FormControl>
-                <Input type="email" placeholder="tu@correo.com" {...field} />
+                <Input type={userType === 'student' ? "text" : "email"} placeholder={identifierPlaceholder} {...field} />
               </FormControl>
               <FormMessage />
             </FormItem>

@@ -2,17 +2,16 @@
 'use server';
 
 import { db } from '@/lib/firebase';
-import { addDoc, collection, query, where, getDocs, serverTimestamp } from 'firebase/firestore';
+import { addDoc, collection, query, where, getDocs, serverTimestamp, Timestamp } from 'firebase/firestore';
 import bcrypt from 'bcryptjs';
 import type { Student, Company } from '@/types';
-import { sendAdminApprovalRequestEmail } from './notificationActions'; // Assuming this is still used for simulation
+import { sendAdminApprovalRequestEmail } from './notificationActions'; 
 
-// Zod schemas for validation (can be imported from form components or defined here)
 import * as z from "zod";
 
 const studentFormSchema = z.object({
   name: z.string().min(2, { message: "El nombre debe tener al menos 2 caracteres." }),
-  email: z.string().email({ message: "Por favor ingresa un correo válido." }),
+  sysacadUser: z.string().min(2, { message: "El Usuario SYSACAD debe tener al menos 2 caracteres." }), // Changed from email
   password: z.string().min(6, { message: "La contraseña debe tener al menos 6 caracteres." }),
 });
 type StudentRegistrationInput = z.infer<typeof studentFormSchema>;
@@ -34,38 +33,38 @@ export async function registerStudent(values: StudentRegistrationInput): Promise
       return { success: false, message: validation.error.errors.map(e => e.message).join(', ') };
     }
 
-    const { name, email, password } = validation.data;
+    const { name, sysacadUser, password } = validation.data;
 
-    // Check if student already exists
+    // Check if student already exists by SYSACAD username
     const studentsRef = collection(db, 'students');
-    const q = query(studentsRef, where('email', '==', email));
+    const q = query(studentsRef, where('sysacadUser', '==', sysacadUser));
     const querySnapshot = await getDocs(q);
     if (!querySnapshot.empty) {
-      return { success: false, message: 'Un estudiante con este correo electrónico ya existe.' };
+      return { success: false, message: 'Un estudiante con este Usuario SYSACAD ya existe.' };
     }
 
-    // Hash password
     const salt = await bcrypt.genSalt(10);
     const passwordHash = await bcrypt.hash(password, salt);
 
+    // Create student with sysacadUser and a placeholder/empty email
     const newStudent: Omit<Student, 'id'> = {
       name,
-      email,
+      sysacadUser,
+      email: `${sysacadUser}@student.utn.placeholder`, // Placeholder email, as it's part of BaseUser in types/index.ts
       passwordHash,
       userType: 'student',
       isApproved: false,
-      isEmailVerified: false,
-      createdAt: serverTimestamp() as Timestamp, // Firestore server timestamp
+      isEmailVerified: false, // Will remain false if no actual student email is collected/verified
+      createdAt: serverTimestamp() as Timestamp,
       updatedAt: serverTimestamp() as Timestamp,
     };
 
     await addDoc(studentsRef, newStudent);
 
-    // Simulate sending admin approval email
-    // In a real scenario, you might pass the new student's ID or more details
     await sendAdminApprovalRequestEmail({
       name: newStudent.name,
-      email: newStudent.email,
+      identifier: newStudent.sysacadUser, // Pass sysacadUser as identifier
+      identifierType: 'sysacadUser',
       userType: 'student',
     });
 
@@ -85,7 +84,6 @@ export async function registerCompany(values: CompanyRegistrationInput): Promise
     }
     const { companyName, email, password, companyDescription } = validation.data;
 
-    // Check if company already exists
     const companiesRef = collection(db, 'companies');
     const q = query(companiesRef, where('email', '==', email));
     const querySnapshot = await getDocs(q);
@@ -93,7 +91,6 @@ export async function registerCompany(values: CompanyRegistrationInput): Promise
       return { success: false, message: 'Una empresa con este correo electrónico ya existe.' };
     }
 
-    // Hash password
     const salt = await bcrypt.genSalt(10);
     const passwordHash = await bcrypt.hash(password, salt);
 
@@ -111,10 +108,10 @@ export async function registerCompany(values: CompanyRegistrationInput): Promise
 
     await addDoc(companiesRef, newCompany);
     
-    // Simulate sending admin approval email
     await sendAdminApprovalRequestEmail({
       name: newCompany.companyName,
-      email: newCompany.email,
+      identifier: newCompany.email, // Pass email as identifier
+      identifierType: 'email',
       userType: 'company',
       description: newCompany.companyDescription,
     });
@@ -126,6 +123,3 @@ export async function registerCompany(values: CompanyRegistrationInput): Promise
     return { success: false, message: `Error al registrar empresa: ${errorMessage}` };
   }
 }
-
-// Note: Login actions (findUserByEmail, verifyPassword) would be added here too.
-// For now, the focus is on registration.

@@ -15,14 +15,13 @@ import {
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { useToast } from "@/hooks/use-toast";
-import { User, Mail, Lock, UserPlus } from "lucide-react";
+import { User, Lock, UserPlus } from "lucide-react"; // Changed Mail to User
 import Link from "next/link";
-// import { sendAdminApprovalRequestEmail } from "@/lib/actions/notificationActions"; // This is now called within registerStudent
 import { registerStudent } from "@/lib/actions/authActions";
 
 const formSchema = z.object({
   name: z.string().min(2, { message: "El nombre debe tener al menos 2 caracteres." }),
-  email: z.string().email({ message: "Por favor ingresa un correo válido." }),
+  sysacadUser: z.string().min(2, { message: "El Usuario SYSACAD debe tener al menos 2 caracteres." }), // Changed from email
   password: z.string().min(6, { message: "La contraseña debe tener al menos 6 caracteres." }),
   confirmPassword: z.string().min(6, { message: "La confirmación de contraseña debe tener al menos 6 caracteres." }),
 }).refine(data => data.password === data.confirmPassword, {
@@ -30,7 +29,9 @@ const formSchema = z.object({
   path: ["confirmPassword"],
 });
 
-type StudentFormData = Omit<z.infer<typeof formSchema>, 'confirmPassword'>;
+// Update StudentFormData to reflect sysacadUser instead of email
+type StudentFormData = Omit<z.infer<typeof formSchema>, 'confirmPassword' | 'email'> & { sysacadUser: string };
+
 
 export default function RegistrationFormStudent() {
   const { toast } = useToast();
@@ -38,16 +39,15 @@ export default function RegistrationFormStudent() {
     resolver: zodResolver(formSchema),
     defaultValues: {
       name: "",
-      email: "",
+      sysacadUser: "", // Changed from email
       password: "",
       confirmPassword: "",
     },
   });
 
   async function onSubmit(values: z.infer<typeof formSchema>) {
-    const { confirmPassword, ...studentData } = values; // Exclude confirmPassword
+    const { confirmPassword, ...studentData } = values; 
     
-    // For GitHub Pages, server actions are simulated to prevent errors.
     if (process.env.NEXT_PUBLIC_GITHUB_PAGES_DEPLOY === 'true') {
       console.warn("GitHub Pages mode: Simulating student registration server action.");
       toast({
@@ -63,6 +63,7 @@ export default function RegistrationFormStudent() {
     }
 
     try {
+      // Ensure studentData matches the expected input for registerStudent, which now takes sysacadUser
       const result = await registerStudent(studentData as StudentFormData);
 
       if (result.success) {
@@ -113,15 +114,15 @@ export default function RegistrationFormStudent() {
         />
         <FormField
           control={form.control}
-          name="email"
+          name="sysacadUser" // Changed from email
           render={({ field }) => (
             <FormItem>
               <FormLabel className="flex items-center">
-                <Mail className="mr-2 h-4 w-4 text-muted-foreground" />
-                Correo Electrónico
+                <User className="mr-2 h-4 w-4 text-muted-foreground" /> {/* Changed icon */}
+                Usuario SYSACAD
               </FormLabel>
               <FormControl>
-                <Input type="email" placeholder="tu@correo.com" {...field} />
+                <Input type="text" placeholder="ej: nombre.apellido" {...field} /> {/* Changed placeholder and type */}
               </FormControl>
               <FormMessage />
             </FormItem>
