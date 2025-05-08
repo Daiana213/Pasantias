@@ -4,13 +4,13 @@
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { MailCheck, Hourglass } from "lucide-react";
+import { Suspense } from "react"; // Import Suspense
 import Link from "next/link";
 import { useSearchParams } from "next/navigation";
-import React from "react";
 
-export default function EmailValidationPendingPage() {
+function EmailValidationContent() {
   const searchParams = useSearchParams();
-  const type = searchParams.get('type');
+  const type = searchParams.get("type");
   const SAU_EMAIL = "sau.consultas.utn@utn.edu.ar"; // Generic SAU email
 
   if (type === 'registration_pending_approval') {
@@ -76,5 +76,13 @@ export default function EmailValidationPendingPage() {
         </div>
       </CardContent>
     </Card>
+  );
+}
+
+export default function EmailValidationPendingPage() {
+  return (
+    <Suspense fallback={<div>Cargando...</div>}> {/* Wrap the content in Suspense */}
+      <EmailValidationContent />
+    </Suspense>
   );
 }
