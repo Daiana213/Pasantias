@@ -17,7 +17,7 @@ const ADMIN_EMAIL = 'daianapalacios213@gmail.com';
 export async function sendAdminApprovalRequestEmail(userDetails: UserDetails): Promise<{ success: boolean; message: string }> {
   console.log('Simulating sending approval request email...');
   console.log(`To: ${ADMIN_EMAIL}`);
-  console.log(`From: noreply@acreditame.utn.edu.ar`);
+  console.log(`From: noreply@pasantias.utn.edu.ar`);
   console.log(`Subject: Nueva solicitud de registro: ${userDetails.userType} - ${userDetails.name}`);
   
   let identifierLabel = '';

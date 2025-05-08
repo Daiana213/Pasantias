@@ -7,7 +7,7 @@ export default function RegisterPage() {
   return (
     <div className="flex flex-col items-center space-y-8">
       <div className="text-center">
-        <h1 className="text-3xl font-bold text-primary mb-2">Únete a AcreditaMe</h1>
+        <h1 className="text-3xl font-bold text-primary mb-2">Únete a Pasantías</h1>
         <p className="text-muted-foreground">Selecciona tu tipo de cuenta para comenzar.</p>
       </div>
 
@@ -59,3 +59,4 @@ export default function RegisterPage() {
     </div>
   );
 }
+

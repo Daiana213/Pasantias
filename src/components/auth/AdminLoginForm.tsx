@@ -39,7 +39,7 @@ export default function AdminLoginForm() {
     console.log("Admin login attempt:", values);
     await new Promise(resolve => setTimeout(resolve, 1000));
     // Example: Hardcoded admin credentials for demo
-    const isAdmin = values.email === "admin@acreditame.com" && values.password === "adminpass";
+    const isAdmin = values.email === "admin@pasantias.utn.edu.ar" && values.password === "adminpass";
     const result = isAdmin 
         ? { success: true, message: "Inicio de sesión de administrador exitoso." }
         : { success: false, message: "Credenciales de administrador incorrectas." };
@@ -112,3 +112,4 @@ export default function AdminLoginForm() {
     </Form>
   );
 }
+

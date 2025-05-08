@@ -10,7 +10,7 @@ export default function LoginPage() {
     <Card className="w-full max-w-md shadow-xl">
       <CardHeader className="text-center">
         <CardTitle className="text-3xl font-bold text-primary">Iniciar Sesión</CardTitle>
-        <CardDescription>Accede a tu cuenta de AcreditaMe</CardDescription>
+        <CardDescription>Accede a tu cuenta de Pasantías</CardDescription>
       </CardHeader>
       <CardContent>
         <Tabs defaultValue="student" className="w-full">
@@ -35,3 +35,4 @@ export default function LoginPage() {
     </Card>
   );
 }
+
