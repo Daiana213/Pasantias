@@ -14,7 +14,7 @@ export interface BaseUser {
 export interface Student extends BaseUser {
   userType: 'student';
   name: string;
-  sysacadUser: string; // Primary identifier for students for login/registration
+  legajo: string; // Primary identifier for students for login/registration, must be numeric.
   // email field from BaseUser might be a placeholder or an actual contact email if gathered elsewhere.
 }
 
@@ -26,3 +26,4 @@ export interface Company extends BaseUser {
 }
 
 export type User = Student | Company;
+

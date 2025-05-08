@@ -3,8 +3,8 @@
 
 interface UserDetails {
   name: string;
-  identifier: string; // Can be email or SYSACAD username
-  identifierType: 'email' | 'sysacadUser';
+  identifier: string; // Can be email or legajo
+  identifierType: 'email' | 'legajo'; // Updated from 'sysacadUser' to 'legajo'
   userType: 'student' | 'company';
   description?: string; // For company
 }
@@ -20,12 +20,19 @@ export async function sendAdminApprovalRequestEmail(userDetails: UserDetails): P
   console.log(`From: noreply@acreditame.utn.edu.ar`);
   console.log(`Subject: Nueva solicitud de registro: ${userDetails.userType} - ${userDetails.name}`);
   
+  let identifierLabel = '';
+  if (userDetails.identifierType === 'email') {
+    identifierLabel = 'Email';
+  } else if (userDetails.identifierType === 'legajo') {
+    identifierLabel = 'Legajo';
+  }
+
   let emailBody = `
     Una nueva solicitud de registro ha sido recibida:
 
     Tipo de Usuario: ${userDetails.userType}
     Nombre: ${userDetails.name}
-    ${userDetails.identifierType === 'email' ? 'Email' : 'Usuario SYSACAD'}: ${userDetails.identifier}
+    ${identifierLabel}: ${userDetails.identifier}
   `;
 
   if (userDetails.userType === 'company' && userDetails.description) {
@@ -45,3 +52,4 @@ export async function sendAdminApprovalRequestEmail(userDetails: UserDetails): P
 
   return { success: true, message: 'Approval request email simulated successfully.' };
 }
+

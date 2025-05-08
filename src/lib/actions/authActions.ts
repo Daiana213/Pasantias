@@ -11,7 +11,7 @@ import * as z from "zod";
 
 const studentFormSchema = z.object({
   name: z.string().min(2, { message: "El nombre debe tener al menos 2 caracteres." }),
-  sysacadUser: z.string().min(2, { message: "El Usuario SYSACAD debe tener al menos 2 caracteres." }), // Changed from email
+  legajo: z.string().regex(/^\d+$/, { message: "El legajo debe ser numérico." }).min(1, {message: "El legajo no puede estar vacío."}),
   password: z.string().min(6, { message: "La contraseña debe tener al menos 6 caracteres." }),
 });
 type StudentRegistrationInput = z.infer<typeof studentFormSchema>;
@@ -33,28 +33,28 @@ export async function registerStudent(values: StudentRegistrationInput): Promise
       return { success: false, message: validation.error.errors.map(e => e.message).join(', ') };
     }
 
-    const { name, sysacadUser, password } = validation.data;
+    const { name, legajo, password } = validation.data;
 
-    // Check if student already exists by SYSACAD username
+    // Check if student already exists by legajo
     const studentsRef = collection(db, 'students');
-    const q = query(studentsRef, where('sysacadUser', '==', sysacadUser));
+    const q = query(studentsRef, where('legajo', '==', legajo));
     const querySnapshot = await getDocs(q);
     if (!querySnapshot.empty) {
-      return { success: false, message: 'Un estudiante con este Usuario SYSACAD ya existe.' };
+      return { success: false, message: 'Un estudiante con este legajo ya existe.' };
     }
 
     const salt = await bcrypt.genSalt(10);
     const passwordHash = await bcrypt.hash(password, salt);
 
-    // Create student with sysacadUser and a placeholder/empty email
+    // Create student with legajo and a placeholder/empty email
     const newStudent: Omit<Student, 'id'> = {
       name,
-      sysacadUser,
-      email: `${sysacadUser}@student.utn.placeholder`, // Placeholder email, as it's part of BaseUser in types/index.ts
+      legajo,
+      email: `${legajo}@student.utn.placeholder`, // Placeholder email
       passwordHash,
       userType: 'student',
       isApproved: false,
-      isEmailVerified: false, // Will remain false if no actual student email is collected/verified
+      isEmailVerified: false, 
       createdAt: serverTimestamp() as Timestamp,
       updatedAt: serverTimestamp() as Timestamp,
     };
@@ -63,8 +63,8 @@ export async function registerStudent(values: StudentRegistrationInput): Promise
 
     await sendAdminApprovalRequestEmail({
       name: newStudent.name,
-      identifier: newStudent.sysacadUser, // Pass sysacadUser as identifier
-      identifierType: 'sysacadUser',
+      identifier: newStudent.legajo, 
+      identifierType: 'legajo',
       userType: 'student',
     });
 
@@ -110,7 +110,7 @@ export async function registerCompany(values: CompanyRegistrationInput): Promise
     
     await sendAdminApprovalRequestEmail({
       name: newCompany.companyName,
-      identifier: newCompany.email, // Pass email as identifier
+      identifier: newCompany.email, 
       identifierType: 'email',
       userType: 'company',
       description: newCompany.companyDescription,
@@ -123,3 +123,4 @@ export async function registerCompany(values: CompanyRegistrationInput): Promise
     return { success: false, message: `Error al registrar empresa: ${errorMessage}` };
   }
 }
+

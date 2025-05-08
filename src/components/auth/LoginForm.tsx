@@ -16,7 +16,7 @@ import {
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { useToast } from "@/hooks/use-toast";
-import { Mail, Lock, LogIn as LogInIcon, User } from "lucide-react"; // Added User icon
+import { Mail, Lock, LogIn as LogInIcon, Hash } from "lucide-react"; // Added Hash icon
 import Link from "next/link";
 
 type LoginFormProps = {
@@ -26,7 +26,7 @@ type LoginFormProps = {
 // Define schema dynamically based on userType
 const getFormSchema = (userType: "student" | "company") => z.object({
   identifier: userType === 'student'
-    ? z.string().min(2, { message: "Usuario SYSACAD debe tener al menos 2 caracteres." })
+    ? z.string().regex(/^\d+$/, { message: "El legajo debe ser numérico." }).min(1, { message: "El legajo no puede estar vacío." })
     : z.string().email({ message: "Por favor ingresa un correo válido." }),
   password: z.string().min(6, { message: "La contraseña debe tener al menos 6 caracteres." }),
 });
@@ -80,16 +80,16 @@ export default function LoginForm({ userType }: LoginFormProps) {
     }
   }
 
-  const identifierLabel = userType === 'student' ? "Usuario SYSACAD" : "Correo Electrónico";
-  const identifierPlaceholder = userType === 'student' ? "ej: nombre.apellido" : "tu@correo.com";
-  const IdentifierIcon = userType === 'student' ? User : Mail;
+  const identifierLabel = userType === 'student' ? "Legajo" : "Correo Electrónico";
+  const identifierPlaceholder = userType === 'student' ? "ej: 12345" : "tu@correo.com";
+  const IdentifierIcon = userType === 'student' ? Hash : Mail;
 
   return (
     <Form {...form}>
       <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
         <FormField
           control={form.control}
-          name="identifier" // Changed from email to identifier
+          name="identifier" 
           render={({ field }) => (
             <FormItem>
               <FormLabel className="flex items-center">
@@ -133,3 +133,4 @@ export default function LoginForm({ userType }: LoginFormProps) {
     </Form>
   );
 }
+
