@@ -18,7 +18,8 @@ import { Textarea } from "@/components/ui/textarea";
 import { useToast } from "@/hooks/use-toast";
 import { Building, Mail, Lock, Info, UserPlus } from "lucide-react";
 import Link from "next/link";
-import { sendAdminApprovalRequestEmail } from "@/lib/actions/notificationActions";
+// import { sendAdminApprovalRequestEmail } from "@/lib/actions/notificationActions"; // This is now called within registerCompany
+import { registerCompany } from "@/lib/actions/authActions";
 
 const formSchema = z.object({
   companyName: z.string().min(2, { message: "El nombre de la empresa debe tener al menos 2 caracteres." }),
@@ -30,6 +31,8 @@ const formSchema = z.object({
   message: "Las contraseñas no coinciden.",
   path: ["confirmPassword"],
 });
+
+type CompanyFormData = Omit<z.infer<typeof formSchema>, 'confirmPassword'>;
 
 export default function RegistrationFormCompany() {
   const { toast } = useToast();
@@ -45,23 +48,27 @@ export default function RegistrationFormCompany() {
   });
 
   async function onSubmit(values: z.infer<typeof formSchema>) {
-    try {
-      // Simulate sending email for admin approval
-      await sendAdminApprovalRequestEmail({
-        name: values.companyName,
-        email: values.email,
-        userType: 'company',
-        description: values.companyDescription,
-      });
+    const { confirmPassword, ...companyData } = values; // Exclude confirmPassword
 
-      toast({
-        title: "Registro Enviado",
-        description: "La solicitud de cuenta para su empresa ha sido enviada para aprobación por SAU. Recibirá un correo de validación una vez que sea aprobada.",
-        variant: "default",
-      });
-      form.reset();
-      if (typeof window !== 'undefined') {
-        window.location.href = '/email-validation-pending?type=registration_pending_approval';
+    try {
+      const result = await registerCompany(companyData as CompanyFormData);
+      
+      if (result.success) {
+        toast({
+          title: "Registro Enviado",
+          description: "La solicitud de cuenta para su empresa ha sido enviada para aprobación por SAU. Recibirá un correo de validación una vez que sea aprobada.",
+          variant: "default",
+        });
+        form.reset();
+        if (typeof window !== 'undefined') {
+          window.location.href = '/email-validation-pending?type=registration_pending_approval';
+        }
+      } else {
+         toast({
+          title: "Error de Registro",
+          description: result.message || "Hubo un problema al procesar la solicitud de su empresa.",
+          variant: "destructive",
+        });
       }
     } catch (error) {
       console.error("Error during company registration process:", error);
@@ -156,9 +163,9 @@ export default function RegistrationFormCompany() {
             </FormItem>
           )}
         />
-        <Button type="submit" className="w-full bg-accent hover:bg-accent/90 text-accent-foreground">
+        <Button type="submit" className="w-full bg-accent hover:bg-accent/90 text-accent-foreground" disabled={form.formState.isSubmitting}>
           <UserPlus className="mr-2 h-4 w-4" />
-          Registrar Empresa
+          {form.formState.isSubmitting ? "Registrando..." : "Registrar Empresa"}
         </Button>
         <div className="text-center text-sm">
           ¿Ya tienes cuenta?{" "}

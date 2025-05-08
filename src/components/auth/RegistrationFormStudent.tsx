@@ -17,7 +17,8 @@ import { Input } from "@/components/ui/input";
 import { useToast } from "@/hooks/use-toast";
 import { User, Mail, Lock, UserPlus } from "lucide-react";
 import Link from "next/link";
-import { sendAdminApprovalRequestEmail } from "@/lib/actions/notificationActions";
+// import { sendAdminApprovalRequestEmail } from "@/lib/actions/notificationActions"; // This is now called within registerStudent
+import { registerStudent } from "@/lib/actions/authActions";
 
 const formSchema = z.object({
   name: z.string().min(2, { message: "El nombre debe tener al menos 2 caracteres." }),
@@ -28,6 +29,8 @@ const formSchema = z.object({
   message: "Las contraseñas no coinciden.",
   path: ["confirmPassword"],
 });
+
+type StudentFormData = Omit<z.infer<typeof formSchema>, 'confirmPassword'>;
 
 export default function RegistrationFormStudent() {
   const { toast } = useToast();
@@ -42,22 +45,27 @@ export default function RegistrationFormStudent() {
   });
 
   async function onSubmit(values: z.infer<typeof formSchema>) {
+    const { confirmPassword, ...studentData } = values; // Exclude confirmPassword
+    
     try {
-      // Simulate sending email for admin approval
-      await sendAdminApprovalRequestEmail({
-        name: values.name,
-        email: values.email,
-        userType: 'student',
-      });
+      const result = await registerStudent(studentData as StudentFormData);
 
-      toast({
-        title: "Registro Enviado",
-        description: "Tu solicitud de cuenta ha sido enviada para aprobación por SAU. Recibirás un correo de validación una vez que sea aprobada.",
-        variant: "default",
-      });
-      form.reset();
-      if (typeof window !== 'undefined') {
-         window.location.href = '/email-validation-pending?type=registration_pending_approval';
+      if (result.success) {
+        toast({
+          title: "Registro Enviado",
+          description: "Tu solicitud de cuenta ha sido enviada para aprobación por SAU. Recibirás un correo de validación una vez que sea aprobada.",
+          variant: "default",
+        });
+        form.reset();
+        if (typeof window !== 'undefined') {
+           window.location.href = '/email-validation-pending?type=registration_pending_approval';
+        }
+      } else {
+        toast({
+          title: "Error de Registro",
+          description: result.message || "Hubo un problema al procesar tu solicitud.",
+          variant: "destructive",
+        });
       }
     } catch (error) {
       console.error("Error during student registration process:", error);
@@ -136,9 +144,9 @@ export default function RegistrationFormStudent() {
             </FormItem>
           )}
         />
-        <Button type="submit" className="w-full bg-accent hover:bg-accent/90 text-accent-foreground">
+        <Button type="submit" className="w-full bg-accent hover:bg-accent/90 text-accent-foreground" disabled={form.formState.isSubmitting}>
           <UserPlus className="mr-2 h-4 w-4" />
-          Registrarme como Estudiante
+          {form.formState.isSubmitting ? "Registrando..." : "Registrarme como Estudiante"}
         </Button>
         <div className="text-center text-sm">
           ¿Ya tienes cuenta?{" "}
