@@ -1,9 +1,45 @@
+
+"use client";
+
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { MailCheck } from "lucide-react";
+import { MailCheck, Hourglass } from "lucide-react";
 import Link from "next/link";
+import { useSearchParams } from "next/navigation";
+import React from "react";
 
 export default function EmailValidationPendingPage() {
+  const searchParams = useSearchParams();
+  const type = searchParams.get('type');
+
+  if (type === 'registration_pending_approval') {
+    return (
+      <Card className="w-full max-w-lg text-center shadow-xl">
+        <CardHeader>
+          <div className="mx-auto bg-primary/10 text-primary p-4 rounded-full w-fit mb-4">
+            <Hourglass size={40} />
+          </div>
+          <CardTitle className="text-2xl font-bold text-primary">¡Registro Enviado!</CardTitle>
+          <CardDescription className="text-lg">
+            Tu solicitud de cuenta está siendo procesada.
+          </CardDescription>
+        </CardHeader>
+        <CardContent>
+          <p className="mb-4 text-muted-foreground">
+            Tu cuenta está pendiente de aprobación por SAU (Sistema de Atención Universitaria). Para consultas sobre el estado de tu aprobación, puedes contactar a <span className="font-medium text-primary">daianapalacios213@gmail.com</span>.
+          </p>
+          <p className="mb-6 text-muted-foreground">
+            Una vez que tu cuenta sea aprobada, te enviaremos un correo de validación a tu dirección de email para que puedas activar tu cuenta. Por favor, revisa tu bandeja de entrada (y la carpeta de spam) después de la aprobación.
+          </p>
+          <Button asChild className="bg-primary hover:bg-primary/90">
+            <Link href="/">Volver a la Página Principal</Link>
+          </Button>
+        </CardContent>
+      </Card>
+    );
+  }
+
+  // Default case: User needs to validate their email (original content)
   return (
     <Card className="w-full max-w-md text-center shadow-xl">
       <CardHeader>
@@ -22,8 +58,9 @@ export default function EmailValidationPendingPage() {
         <p className="mb-2 text-sm text-muted-foreground">
           ¿No recibiste el correo?
         </p>
-        <Button variant="outline" className="mb-6">
-          Reenviar Correo de Validación
+        {/* This button would typically trigger a resend email action */}
+        <Button variant="outline" className="mb-6" disabled> {/* Disabled for now as no backend action */}
+          Reenviar Correo de Validación 
         </Button>
         <div className="mt-4">
           <Button asChild variant="link" className="text-primary">
@@ -34,3 +71,4 @@ export default function EmailValidationPendingPage() {
     </Card>
   );
 }
+
