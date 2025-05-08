@@ -16,8 +16,8 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: 'AcreditaMe',
-  description: 'Plataforma de acreditación para estudiantes y empresas.',
+  title: 'Pasantías UTN',
+  description: 'Plataforma de pasantías para estudiantes y empresas de la UTN.',
 };
 
 export default function RootLayout({
