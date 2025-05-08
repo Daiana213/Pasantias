@@ -22,6 +22,12 @@ const nextConfig: NextConfig = {
         port: '',
         pathname: '/**',
       },
+      {
+        protocol: 'https',
+        hostname: 'diagonalalaro.com.ar',
+        port: '',
+        pathname: '/**',
+      }
     ],
   },
   // Ensure NEXT_PUBLIC_ environment variables are available client-side
@@ -38,3 +44,4 @@ const nextConfig: NextConfig = {
 };
 
 export default nextConfig;
+

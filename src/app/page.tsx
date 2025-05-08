@@ -2,11 +2,20 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Briefcase, GraduationCap, LogIn, UserPlus } from "lucide-react";
 import Link from "next/link";
+import Image from "next/image";
 
 export default function Home() {
   return (
     <div className="flex flex-col items-center justify-center min-h-[calc(100vh-200px)] py-12">
       <section className="text-center mb-12">
+        <Image 
+          src="https://diagonalalaro.com.ar/wp-content/uploads/2018/03/UTN.png" 
+          alt="Logo UTN"
+          width={150} 
+          height={75}
+          className="mx-auto mb-6"
+          data-ai-hint="university logo"
+        />
         <h1 className="text-5xl font-bold text-primary mb-4">Pasantías UTN</h1>
         <p className="text-xl text-muted-foreground max-w-2xl mx-auto">
           Conectando estudiantes y empresas para oportunidades de pasantías.
@@ -67,3 +76,4 @@ export default function Home() {
     </div>
   );
 }
+
