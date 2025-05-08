@@ -17,7 +17,7 @@ import { Input } from "@/components/ui/input";
 import { useToast } from "@/hooks/use-toast";
 import { User, Mail, Lock, UserPlus } from "lucide-react";
 import Link from "next/link";
-// import { registerStudent } from "@/lib/actions/authActions"; // Assume this action exists
+import { sendAdminApprovalRequestEmail } from "@/lib/actions/notificationActions";
 
 const formSchema = z.object({
   name: z.string().min(2, { message: "El nombre debe tener al menos 2 caracteres." }),
@@ -42,28 +42,28 @@ export default function RegistrationFormStudent() {
   });
 
   async function onSubmit(values: z.infer<typeof formSchema>) {
-    // const result = await registerStudent(values); // Placeholder for server action
-    // For demonstration, simulating API call
-    console.log("Student registration attempt:", values);
-    await new Promise(resolve => setTimeout(resolve, 1000));
-    // Simulate success. Details about SAU approval will be on the redirected page.
-    const result = { success: true, message: "Registro exitoso. Redirigiendo..." };
+    try {
+      // Simulate sending email for admin approval
+      await sendAdminApprovalRequestEmail({
+        name: values.name,
+        email: values.email,
+        userType: 'student',
+      });
 
-
-    if (result.success) {
       toast({
         title: "Registro Enviado",
-        description: result.message,
+        description: "Tu solicitud de cuenta ha sido enviada para aprobación por SAU. Recibirás un correo de validación una vez que sea aprobada.",
         variant: "default",
       });
       form.reset();
       if (typeof window !== 'undefined') {
          window.location.href = '/email-validation-pending?type=registration_pending_approval';
       }
-    } else {
+    } catch (error) {
+      console.error("Error during student registration process:", error);
       toast({
         title: "Error de Registro",
-        description: result.message || "No se pudo completar el registro. Intenta de nuevo.",
+        description: "Hubo un problema al enviar tu solicitud. Por favor, intenta de nuevo más tarde o contacta a SAU.",
         variant: "destructive",
       });
     }
@@ -150,4 +150,3 @@ export default function RegistrationFormStudent() {
     </Form>
   );
 }
-

@@ -18,7 +18,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { useToast } from "@/hooks/use-toast";
 import { Building, Mail, Lock, Info, UserPlus } from "lucide-react";
 import Link from "next/link";
-// import { registerCompany } from "@/lib/actions/authActions"; // Assume this action exists
+import { sendAdminApprovalRequestEmail } from "@/lib/actions/notificationActions";
 
 const formSchema = z.object({
   companyName: z.string().min(2, { message: "El nombre de la empresa debe tener al menos 2 caracteres." }),
@@ -45,27 +45,29 @@ export default function RegistrationFormCompany() {
   });
 
   async function onSubmit(values: z.infer<typeof formSchema>) {
-    // const result = await registerCompany(values); // Placeholder for server action
-    // For demonstration, simulating API call
-    console.log("Company registration attempt:", values);
-    await new Promise(resolve => setTimeout(resolve, 1000));
-    // Simulate success. Details about SAU approval will be on the redirected page.
-    const result = { success: true, message: "Registro exitoso. Redirigiendo..." };
+    try {
+      // Simulate sending email for admin approval
+      await sendAdminApprovalRequestEmail({
+        name: values.companyName,
+        email: values.email,
+        userType: 'company',
+        description: values.companyDescription,
+      });
 
-    if (result.success) {
       toast({
         title: "Registro Enviado",
-        description: result.message,
+        description: "La solicitud de cuenta para su empresa ha sido enviada para aprobación por SAU. Recibirá un correo de validación una vez que sea aprobada.",
         variant: "default",
       });
       form.reset();
       if (typeof window !== 'undefined') {
         window.location.href = '/email-validation-pending?type=registration_pending_approval';
       }
-    } else {
+    } catch (error) {
+      console.error("Error during company registration process:", error);
       toast({
         title: "Error de Registro",
-        description: result.message || "No se pudo completar el registro. Intenta de nuevo.",
+        description: "Hubo un problema al enviar su solicitud. Por favor, intente de nuevo más tarde o contacte a SAU.",
         variant: "destructive",
       });
     }
@@ -168,4 +170,3 @@ export default function RegistrationFormCompany() {
     </Form>
   );
 }
-
