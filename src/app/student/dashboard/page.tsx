@@ -2,7 +2,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { GraduationCap, Briefcase, FileText, Settings } from "lucide-react";
 import Link from "next/link";
-import Image from "next/image";
+// import Image from "next/image"; // Image component no longer used
 
 export default function StudentDashboardPage() {
   return (
@@ -70,8 +70,9 @@ export default function StudentDashboardPage() {
           <CardDescription>Un resumen de tus últimas interacciones y notificaciones.</CardDescription>
         </CardHeader>
         <CardContent>
-          <Image src="https://picsum.photos/800/300" data-ai-hint="activity feed" alt="Activity feed placeholder" width={800} height={300} className="rounded-md object-cover" />
-          <p className="text-muted-foreground mt-4 text-center">No hay actividad reciente.</p>
+          <div className="h-60 bg-muted/20 rounded-md flex items-center justify-center border border-dashed">
+            <p className="text-muted-foreground">No hay actividad reciente.</p>
+          </div>
         </CardContent>
       </Card>
 
