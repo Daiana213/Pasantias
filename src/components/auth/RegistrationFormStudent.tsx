@@ -47,6 +47,21 @@ export default function RegistrationFormStudent() {
   async function onSubmit(values: z.infer<typeof formSchema>) {
     const { confirmPassword, ...studentData } = values; // Exclude confirmPassword
     
+    // For GitHub Pages, server actions are simulated to prevent errors.
+    if (process.env.NEXT_PUBLIC_GITHUB_PAGES_DEPLOY === 'true') {
+      console.warn("GitHub Pages mode: Simulating student registration server action.");
+      toast({
+        title: "Registro Enviado (Simulado)",
+        description: "Tu solicitud de cuenta ha sido enviada para aprobación. (Esta es una simulación para GitHub Pages).",
+        variant: "default",
+      });
+      form.reset();
+      if (typeof window !== 'undefined') {
+         window.location.href = '/email-validation-pending?type=registration_pending_approval';
+      }
+      return;
+    }
+
     try {
       const result = await registerStudent(studentData as StudentFormData);
 
