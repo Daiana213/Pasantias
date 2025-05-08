@@ -72,34 +72,34 @@ export default function MainHeader() {
 
 
   return (
-    <header className="bg-card border-b">
+    <header className="bg-primary text-primary-foreground border-b border-primary-foreground/20">
       <nav className="container mx-auto px-4 py-4 flex justify-between items-center">
-        <Link href="/" className="text-2xl font-bold text-primary">
+        <Link href="/" className="text-2xl font-bold text-primary-foreground">
           Pasantías UTN
         </Link>
         <div className="space-x-2">
           {isLoggedIn ? (
             <>
-              <Button variant="ghost" asChild>
+              <Button variant="ghost" className="text-primary-foreground hover:bg-primary-foreground/10 hover:text-primary-foreground" asChild>
                 <Link href={getProfileLink()}>
                   <UserCircle className="mr-2 h-4 w-4" />
                   Perfil
                 </Link>
               </Button>
-              <Button variant="ghost" onClick={handleLogout}>
+              <Button variant="ghost" className="text-primary-foreground hover:bg-primary-foreground/10 hover:text-primary-foreground" onClick={handleLogout}>
                 <LogoutLucideIcon className="mr-2 h-4 w-4" />
                 Cerrar Sesión
               </Button>
             </>
           ) : (
             <>
-              <Button variant="ghost" asChild>
+              <Button variant="ghost" className="text-primary-foreground hover:bg-primary-foreground/10 hover:text-primary-foreground" asChild>
                 <Link href="/">
                   <Home className="mr-2 h-4 w-4" />
                   Inicio
                 </Link>
               </Button>
-              <Button variant="ghost" asChild>
+              <Button variant="ghost" className="text-primary-foreground hover:bg-primary-foreground/10 hover:text-primary-foreground" asChild>
                 <Link href="/login">
                   <LoginLucideIcon className="mr-2 h-4 w-4" />
                   Iniciar Sesión

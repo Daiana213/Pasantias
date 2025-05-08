@@ -48,15 +48,21 @@ export default function RegistrationFormCompany() {
     // For demonstration, simulating API call
     console.log("Company registration attempt:", values);
     await new Promise(resolve => setTimeout(resolve, 1000));
-    const result = { success: true, message: "Registro exitoso. Revisa tu correo para validar la cuenta de tu empresa." };
+    const result = { success: true, message: "Registro exitoso. Tu cuenta está pendiente de aprobación por daianapalacios214@gmail.com." };
 
     if (result.success) {
       toast({
-        title: "Registro Exitoso",
+        title: "Registro Enviado",
         description: result.message,
         variant: "default",
       });
       form.reset();
+      // Potentially redirect to a page indicating pending approval or login.
+      // For now, just log and clear form.
+      // Consider redirecting to /email-validation-pending or a similar page
+      // if (typeof window !== 'undefined') {
+      //   window.location.href = '/email-validation-pending?status=pending_admin_approval';
+      // }
     } else {
       toast({
         title: "Error de Registro",
